@@ -2,7 +2,7 @@
 Repository of experiments in fairness Machine Learning.
 
 > ### Authors & contributors:
-> Riccardo Crupi, Alessandro Castelnovo, Daniele Regoli
+> Alessandro Castelnovo, Riccardo Crupi, Daniele Regoli
 
 To know more about this research work, please refer to our papers:
 
