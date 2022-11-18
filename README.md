@@ -11,3 +11,6 @@ To know more about this research work, please refer to our papers:
 - [A clarification of the nuances in the fairness metrics landscape](https://www.nature.com/articles/s41598-022-07939-1)
   [ArXiv version](https://arxiv.org/pdf/2106.00467.pdf)
 - Investigating Bias with a Synthetic Data Generator: Empirical Evidence and Philosophical Interpretation [work in progress]
+
+
+![image](https://user-images.githubusercontent.com/66357086/202754476-9b270563-00b1-4f08-8404-de9396d67e0b.png)
