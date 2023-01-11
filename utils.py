@@ -14,7 +14,7 @@ from fairlearn.metrics import (
     MetricFrame,
     selection_rate, demographic_parity_difference, demographic_parity_ratio,
     false_positive_rate, false_negative_rate,
-    false_positive_rate_difference, false_negative_rate_difference,
+    false_positive_rate_difference, false_negative_rate_difference, true_positive_rate_difference,
     equalized_odds_difference, equalized_odds_ratio)
 from sklearn.metrics import balanced_accuracy_score, roc_auc_score, f1_score, precision_score, recall_score, accuracy_score
 from sklearn.metrics import mutual_info_score, adjusted_mutual_info_score, normalized_mutual_info_score
@@ -39,6 +39,95 @@ def fit_models(X_train, X_ind_train, X_supp_train, y_train):
     return clf, clf_ind, clf_supp, neigh, neigh_supp
 
 
+# code modified from https://github.com/joebaumann/fair-prediction-based-decision-making
+def ppv(y, y_pred, group_indices):
+    group_indices = group_indices.astype(bool)
+    if sum(y_pred[group_indices] == 1) == 0:
+        return float('inf')
+    return sum((y[group_indices] == 1) & (y_pred[group_indices] == 1)) / sum(y_pred[group_indices] == 1)
+
+def forate(y, y_pred, group_indices):
+    group_indices = group_indices.astype(bool)
+    if sum(y_pred[group_indices] == 0) == 0:
+        return float('inf')
+    return sum((y[group_indices] == 1) & (y_pred[group_indices] == 0)) / sum(y_pred[group_indices] == 0)
+
+def positive_predictive_value_difference(y_true, y_pred, sensitive_features):
+    fairness_value_a1 = ppv(y_true, y_pred, sensitive_features)
+    fairness_value_a0 = ppv(y_true, y_pred, 1-sensitive_features)
+    return abs(fairness_value_a1-fairness_value_a0)
+
+def false_omission_rate_difference(y_true, y_pred, sensitive_features):
+    fairness_value_a1 = forate(y_true, y_pred, sensitive_features)
+    fairness_value_a0 = forate(y_true, y_pred, 1-sensitive_features)
+    return abs(fairness_value_a1-fairness_value_a0)
+
+def sufficiency_difference(y_true, y_pred, sensitive_features):
+    """Calculate the sufficiency difference.
+    The greater of two metrics: `positive_predictive_value_difference` and
+    `false_omission_rate_difference`. The former is the difference between the
+    largest and smallest of :math:`P[Y=1 | A=a, D=1]`, across all values :math:`a`
+    of the sensitive feature(s). The latter is defined similarly, but for
+    :math:`P[Y=1 | A=a, Y=0]`.
+    The sufficiency difference of 0 means that all groups have the same
+    positive predictive value, false discovery rate, false omission rate, and negative predictive value.
+    Parameters
+    ----------
+    y_true : array-like
+        Ground truth (correct) labels.
+    y_pred : array-like
+        Predicted labels :math:`h(X)` returned by the classifier.
+    sensitive_features :
+        The sensitive features over which demographic parity should be assessed
+    Returns
+    -------
+    float
+        The sufficiency difference
+    """
+    ppv_diff = positive_predictive_value_difference(y_true, y_pred, sensitive_features)
+    for_diff = false_omission_rate_difference(y_true, y_pred, sensitive_features)
+    return max(ppv_diff, for_diff)
+
+def positive_predictive_value_ratio(y_true, y_pred, sensitive_features):
+    fairness_value_a1 = ppv(y_true, y_pred, sensitive_features)
+    fairness_value_a0 = ppv(y_true, y_pred, 1-sensitive_features)
+    if max(fairness_value_a1, fairness_value_a0) == 0:
+        return 0
+    return min(fairness_value_a1, fairness_value_a0) / max(fairness_value_a1, fairness_value_a0)
+
+def false_omission_rate_ratio(y_true, y_pred, sensitive_features):
+    fairness_value_a1 = forate(y_true, y_pred, sensitive_features)
+    fairness_value_a0 = forate(y_true, y_pred, 1-sensitive_features)
+    if max(fairness_value_a1, fairness_value_a0) == 0:
+        return 0
+    return min(fairness_value_a1, fairness_value_a0) / max(fairness_value_a1, fairness_value_a0)
+
+def sufficiency_ratio(y_true, y_pred, sensitive_features):
+    """Calculate the sufficiency ratio.
+    The smaller of two metrics: `positive_predictive_value_ratio` and
+    `false_omission_rate_ratio`. The former is the ratio between the
+    smallest and largest of :math:`P[Y=1 | A=a, D=1]`, across all values :math:`a`
+    of the sensitive feature(s). The latter is defined similarly, but for
+    :math:`P[Y=1 | A=a, D=0]`.
+    The sufficiency ratio of 1 means that all groups have the same
+    positive predictive value, false discovery rate, false omission rate, and negative predictive value.
+    Parameters
+    ----------
+    y_true : array-like
+        Ground truth (correct) labels.
+    y_pred : array-like
+        Predicted labels :math:`h(X)` returned by the classifier.
+    sensitive_features :
+        The sensitive features over which demographic parity should be assessed
+    Returns
+    -------
+    float
+        The sufficiency ratio
+    """
+    ppv_ratio = positive_predictive_value_ratio(y_true, y_pred, sensitive_features)
+    for_ratio = false_omission_rate_ratio(y_true, y_pred, sensitive_features)
+    return min(ppv_ratio, for_ratio)
+
 # Code modified from https://github.com/fairlearn/fairlearn/blob/main/notebooks/Binary%20Classification%20with%20the%20UCI%20Credit-card%20Default%20Dataset.ipynb
 def get_metrics_df(models_dict, y_true, group, X_ind_test=None, X_supp_test=None, dct_flip=None):
     metrics_dict = {
@@ -48,21 +137,26 @@ def get_metrics_df(models_dict, y_true, group, X_ind_test=None, X_supp_test=None
             lambda x: demographic_parity_difference(y_true, x, sensitive_features=group), True),
         "Demographic parity ratio": (
             lambda x: demographic_parity_ratio(y_true, x, sensitive_features=group), True),
-        "------": (lambda x: "", True),
         # "Overall balanced error rate": (
         #     lambda x: 1-balanced_accuracy_score(y_true, x), True),
         # "Balanced error rate difference": (
         #     lambda x: MetricFrame(metrics=balanced_accuracy_score, y_true=y_true, y_pred=x, sensitive_features=group).difference(method='between_groups'), True),
-        # " ------": (lambda x: "", True),
-        # "False positive rate difference": (
-        #     lambda x: false_positive_rate_difference(y_true, x, sensitive_features=group), True),
-        # "False negative rate difference": (
-        #     lambda x: false_negative_rate_difference(y_true, x, sensitive_features=group), True),
+        "TPR difference": (
+            lambda x: true_positive_rate_difference(y_true, x, sensitive_features=group), True),
+        "FPR difference": (
+            lambda x: false_positive_rate_difference(y_true, x, sensitive_features=group), True),
         "Equalized odds ratio": (
             lambda x: equalized_odds_ratio(y_true, x, sensitive_features=group), True),
         "Equalized odds difference": (
             lambda x: equalized_odds_difference(y_true, x, sensitive_features=group), True),
-        "  ------": (lambda x: "", True),
+        "PPV difference": (
+            lambda x: positive_predictive_value_difference(y_true, x, sensitive_features=group), True),
+        "FOR difference": (
+            lambda x: false_omission_rate_difference(y_true, x, sensitive_features=group), True),
+        "Sufficiency ratio": (
+            lambda x: sufficiency_ratio(y_true, x, sensitive_features=group), True),
+        "Sufficiency difference": (
+            lambda x: sufficiency_difference(y_true, x, sensitive_features=group), True),
         # "Overall AUC": (
         #     lambda x: roc_auc_score(y_true, x), False),
         "ACC score": (
@@ -77,14 +171,11 @@ def get_metrics_df(models_dict, y_true, group, X_ind_test=None, X_supp_test=None
         #     lambda x: MetricFrame(metrics=roc_auc_score, y_true=y_true, y_pred=x, sensitive_features=group).difference(method='between_groups'), False),
         "ACC score difference": (
             lambda x: MetricFrame(metrics=accuracy_score, y_true=y_true, y_pred=1*(x > 0.5), sensitive_features=group).difference(method='between_groups'), False),
-        "   ------": (lambda x: "", True),
         "F1 score difference": (
             lambda x: MetricFrame(metrics=f1_score, y_true=y_true, y_pred=1*(x > 0.5), sensitive_features=group).difference(method='between_groups'), False),
-        "   ------": (lambda x: "", True),
         "Flip": (lambda x: dct_flip[x], 'no'),
         # "Individuality": (lambda x: neigh.score(X_ind_test, x), True),
         # "Individuality suppression": (lambda x: neigh_supp.score(X_supp_test, x), True),
-        "    ------": (lambda x: "", True),
         "Mutual information A, y_pred": (lambda x: normalized_mutual_info_score(group, x), True),
         "Mutual information A, y_true": (lambda x: normalized_mutual_info_score(group, y_true), True),
     }
@@ -100,7 +191,7 @@ def get_metrics_df(models_dict, y_true, group, X_ind_test=None, X_supp_test=None
                 else:
                     list_tmp.append(metric_func(model_name))
             except:
-                print('problem in: ', metric_name)
+                print('problem for model:', model_name, 'in metric:', metric_name)
                 list_tmp.append('NaN')
         df_dict[metric_name] = list_tmp
     return pd.DataFrame.from_dict(df_dict, orient="index", columns=models_dict.keys())

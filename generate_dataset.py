@@ -72,7 +72,7 @@ def create_synth(dim=15000, l_y=4, l_m_y=0, thr_supp=1, l_h_r=1.5,  l_h_q=1, l_m
     else:
         dtf = pd.DataFrame({'R': R, 'Q': Q, 'A': A, 'Y': y, 'Y_real': y_real})
 
-    # Udersample
+    # Undersample
     int_p_u = int(((dtf['A'] == 1).sum())*p_u)
     if int_p_u > 0:
         if l_r:
