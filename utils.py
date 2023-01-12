@@ -1,25 +1,33 @@
 # General imports
+import time
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-# ML models
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
-# Fairlearn algorithms and utils
+# Fairlearn metrics
+from fairlearn.metrics import (MetricFrame, demographic_parity_difference,
+                               demographic_parity_ratio,
+                               equalized_odds_difference, equalized_odds_ratio,
+                               false_negative_rate,
+                               false_negative_rate_difference,
+                               false_positive_rate,
+                               false_positive_rate_difference, selection_rate,
+                               true_positive_rate_difference)
+# Fairlearn post-processing algorithms
 from fairlearn.postprocessing import ThresholdOptimizer
-# Metrics
-from fairlearn.metrics import (
-    MetricFrame,
-    selection_rate, demographic_parity_difference, demographic_parity_ratio,
-    false_positive_rate, false_negative_rate,
-    false_positive_rate_difference, false_negative_rate_difference, true_positive_rate_difference,
-    equalized_odds_difference, equalized_odds_ratio)
-from sklearn.metrics import balanced_accuracy_score, roc_auc_score, f1_score, precision_score, recall_score, accuracy_score
-from sklearn.metrics import mutual_info_score, adjusted_mutual_info_score, normalized_mutual_info_score
+# ML models
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (accuracy_score, adjusted_mutual_info_score,
+                             balanced_accuracy_score, f1_score,
+                             mutual_info_score, normalized_mutual_info_score,
+                             precision_score, recall_score, roc_auc_score)
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 from generate_dataset import create_synth
+from post_processing_ppv_for import (apply_decision_rule,
+                                     run_ppv_parity_and_for_parity)
 
 
 def fit_models(X_train, X_ind_train, X_supp_train, y_train):
@@ -40,27 +48,36 @@ def fit_models(X_train, X_ind_train, X_supp_train, y_train):
 
 
 # code modified from https://github.com/joebaumann/fair-prediction-based-decision-making
+def acceptance_rate(y, y_pred, group_indices):
+    group_indices = group_indices.astype(bool)
+    return sum(y_pred[group_indices] == 1) / len(y_pred[group_indices])
+
+
 def ppv(y, y_pred, group_indices):
     group_indices = group_indices.astype(bool)
     if sum(y_pred[group_indices] == 1) == 0:
-        return float('inf')
+        return 1.0
     return sum((y[group_indices] == 1) & (y_pred[group_indices] == 1)) / sum(y_pred[group_indices] == 1)
+
 
 def forate(y, y_pred, group_indices):
     group_indices = group_indices.astype(bool)
     if sum(y_pred[group_indices] == 0) == 0:
-        return float('inf')
+        return 0.0
     return sum((y[group_indices] == 1) & (y_pred[group_indices] == 0)) / sum(y_pred[group_indices] == 0)
+
 
 def positive_predictive_value_difference(y_true, y_pred, sensitive_features):
     fairness_value_a1 = ppv(y_true, y_pred, sensitive_features)
     fairness_value_a0 = ppv(y_true, y_pred, 1-sensitive_features)
     return abs(fairness_value_a1-fairness_value_a0)
 
+
 def false_omission_rate_difference(y_true, y_pred, sensitive_features):
     fairness_value_a1 = forate(y_true, y_pred, sensitive_features)
     fairness_value_a0 = forate(y_true, y_pred, 1-sensitive_features)
     return abs(fairness_value_a1-fairness_value_a0)
+
 
 def sufficiency_difference(y_true, y_pred, sensitive_features):
     """Calculate the sufficiency difference.
@@ -84,9 +101,12 @@ def sufficiency_difference(y_true, y_pred, sensitive_features):
     float
         The sufficiency difference
     """
-    ppv_diff = positive_predictive_value_difference(y_true, y_pred, sensitive_features)
-    for_diff = false_omission_rate_difference(y_true, y_pred, sensitive_features)
+    ppv_diff = positive_predictive_value_difference(
+        y_true, y_pred, sensitive_features)
+    for_diff = false_omission_rate_difference(
+        y_true, y_pred, sensitive_features)
     return max(ppv_diff, for_diff)
+
 
 def positive_predictive_value_ratio(y_true, y_pred, sensitive_features):
     fairness_value_a1 = ppv(y_true, y_pred, sensitive_features)
@@ -95,12 +115,14 @@ def positive_predictive_value_ratio(y_true, y_pred, sensitive_features):
         return 0
     return min(fairness_value_a1, fairness_value_a0) / max(fairness_value_a1, fairness_value_a0)
 
+
 def false_omission_rate_ratio(y_true, y_pred, sensitive_features):
     fairness_value_a1 = forate(y_true, y_pred, sensitive_features)
     fairness_value_a0 = forate(y_true, y_pred, 1-sensitive_features)
     if max(fairness_value_a1, fairness_value_a0) == 0:
         return 0
     return min(fairness_value_a1, fairness_value_a0) / max(fairness_value_a1, fairness_value_a0)
+
 
 def sufficiency_ratio(y_true, y_pred, sensitive_features):
     """Calculate the sufficiency ratio.
@@ -124,7 +146,8 @@ def sufficiency_ratio(y_true, y_pred, sensitive_features):
     float
         The sufficiency ratio
     """
-    ppv_ratio = positive_predictive_value_ratio(y_true, y_pred, sensitive_features)
+    ppv_ratio = positive_predictive_value_ratio(
+        y_true, y_pred, sensitive_features)
     for_ratio = false_omission_rate_ratio(y_true, y_pred, sensitive_features)
     return min(ppv_ratio, for_ratio)
 
@@ -191,10 +214,31 @@ def get_metrics_df(models_dict, y_true, group, X_ind_test=None, X_supp_test=None
                 else:
                     list_tmp.append(metric_func(model_name))
             except:
-                print('problem for model:', model_name, 'in metric:', metric_name)
+                print('problem for model:', model_name,
+                      'in metric:', metric_name)
                 list_tmp.append('NaN')
         df_dict[metric_name] = list_tmp
     return pd.DataFrame.from_dict(df_dict, orient="index", columns=models_dict.keys())
+
+
+def threshold_optimizer_ppv_for(s_train, y_train, group_indices, group_indices_test, s_test):
+    threshold_nr = 100
+    group_indices = [(1-group_indices).astype(
+        bool), group_indices.astype(bool)]
+    optimal_decision_rules_ppv, optimal_decision_rules_for = run_ppv_parity_and_for_parity(
+        threshold_nr, s_train, y_train, group_indices)
+    threshold_ppv_A0, threshold_ppv_A1 = optimal_decision_rules_ppv['ideal_thresholds']
+    threshold_for_A0, threshold_for_A1 = optimal_decision_rules_for['ideal_thresholds']
+
+    group_indices_test_A1 = group_indices_test.astype(bool)
+    group_indices_test_A0 = (1-group_indices_test).astype(bool)
+
+    postprocess_preds_ppv = apply_decision_rule(
+        s_test, group_indices_test_A0, group_indices_test_A1, threshold_ppv_A0, threshold_ppv_A1)
+    postprocess_preds_for = apply_decision_rule(
+        s_test, group_indices_test_A0, group_indices_test_A1, threshold_for_A0, threshold_for_A1)
+
+    return postprocess_preds_ppv, postprocess_preds_for
 
 
 def mitigations(X_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_test_real,
@@ -248,6 +292,38 @@ def mitigations(X_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_tes
     dct_flip['Unmitigated'] = 1 - \
         abs(clf.predict(X_test) - clf.predict(X_flip)).mean()
 
+    # # # TPR parity (=equality of opportunity)
+    postprocess_est_tpr = ThresholdOptimizer(
+        estimator=clf, constraints="true_positive_rate_parity", predict_method='predict_proba', prefit=True)
+    postprocess_est_tpr.fit(
+        X_train, y_train, sensitive_features=X_train[sens_var])
+    postprocess_preds_tpr = postprocess_est_tpr.predict(
+        X_test, sensitive_features=X_test[sens_var])
+    postprocess_preds_tpr_flip = postprocess_est_tpr.predict(
+        X_flip, sensitive_features=X_flip[sens_var])
+    dct_flip['TPR'] = 1-abs(postprocess_preds_tpr -
+                            postprocess_preds_tpr_flip).mean()
+
+    # # # FPR parity
+    postprocess_est_fpr = ThresholdOptimizer(
+        estimator=clf, constraints="false_positive_rate_parity", predict_method='predict_proba', prefit=True)
+    postprocess_est_fpr.fit(
+        X_train, y_train, sensitive_features=X_train[sens_var])
+    postprocess_preds_fpr = postprocess_est_fpr.predict(
+        X_test, sensitive_features=X_test[sens_var])
+    postprocess_preds_fpr_flip = postprocess_est_fpr.predict(
+        X_flip, sensitive_features=X_flip[sens_var])
+    dct_flip['FPR'] = 1-abs(postprocess_preds_fpr -
+                            postprocess_preds_fpr_flip).mean()
+
+    # # # PPV parity & FOR parity
+    unmitigated_scores_train = pd.Series(
+        clf.predict_proba(X_train)[:, 1], index=X_train.index)
+    unmitigated_scores_test = pd.Series(
+        clf.predict_proba(X_test)[:, 1], index=X_test.index)
+    postprocess_preds_ppv, postprocess_preds_for = threshold_optimizer_ppv_for(
+        unmitigated_scores_train, y_train, X_train[sens_var], X_test[sens_var], unmitigated_scores_test)
+
     # # # equalized_odds
     postprocess_est_eo = ThresholdOptimizer(estimator=clf,
                                             constraints="equalized_odds", predict_method='predict_proba', prefit=True)
@@ -259,6 +335,7 @@ def mitigations(X_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_tes
         X_flip, sensitive_features=X_flip[sens_var])
     dct_flip['EO'] = 1-abs(postprocess_preds_eo -
                            postprocess_preds_eo_flip).mean()
+
     # # # demographic_parity
     postprocess_est_dp = ThresholdOptimizer(estimator=clf,
                                             constraints="demographic_parity", predict_method='predict_proba', prefit=True)
@@ -270,6 +347,7 @@ def mitigations(X_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_tes
         X_flip, sensitive_features=X_flip[sens_var])
     dct_flip['DP'] = 1-abs(postprocess_preds_dp -
                            postprocess_preds_dp_flip).mean()
+
     # # # Conditional demographic_parity
     try:
         postprocess_preds_cdp = 0*postprocess_preds_dp.copy()
@@ -302,6 +380,10 @@ def mitigations(X_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_tes
                    "FTU":  (clf_ind.predict(X_ind_test), clf_ind.predict_proba(X_ind_test)[:, 1]),
                    "Suppression_"+str(thr_supp): (clf_supp.predict(X_supp_test), clf_supp.predict_proba(X_supp_test)[:, 1]),
                    "EO": (postprocess_preds_eo, postprocess_preds_eo),
+                   "TPR": (postprocess_preds_tpr, postprocess_preds_tpr),
+                   "FPR": (postprocess_preds_fpr, postprocess_preds_fpr),
+                   "PPV": (postprocess_preds_ppv, postprocess_preds_ppv),
+                   "FOR": (postprocess_preds_for, postprocess_preds_for),
                    "DP": (postprocess_preds_dp, postprocess_preds_dp),
                    "CDP": (postprocess_preds_cdp, postprocess_preds_cdp)}
 
@@ -356,3 +438,18 @@ def pipeline(param_dict, sens_var='A', cond_var='Q', y_bias_meas=False):
         return get_metrics_df(models_dict, y_test_real, X_test[sens_var], X_ind_test, X_supp_test, dct_flip)
     else:
         return get_metrics_df(models_dict, y_test, X_test[sens_var], X_ind_test, X_supp_test, dct_flip)
+
+
+def timer(func):
+    """Decorator that prints the runtime of the decorated function"""
+
+    def wrapper_timer(*args, **kwargs):
+        start_time = time.perf_counter()
+        value = func(*args, **kwargs)
+        end_time = time.perf_counter()
+        run_time = end_time - start_time
+        print(
+            f"\n\nDONE :)  --  Finished {func.__name__!r} in {run_time:.4f} seconds")
+        return value
+
+    return wrapper_timer
