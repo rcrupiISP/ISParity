@@ -1,0 +1,8 @@
+colorcet==3.0.1
+fairlearn==0.8.0
+matplotlib==3.6.2
+numpy==1.23.5
+pandas==1.5.2
+scikit_learn==1.2.0
+seaborn==0.12.2
+sympy==1.11.1

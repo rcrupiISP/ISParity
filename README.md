@@ -14,3 +14,17 @@ To know more about this research work, please refer to our papers:
 
 
 ![image](https://user-images.githubusercontent.com/66357086/202754476-9b270563-00b1-4f08-8404-de9396d67e0b.png)
+
+### Using the biased dataset generator
+Clone repo and install packages:
+```
+git clone https://github.com/rcrupiISP/ISParity.git
+cd ISParity
+pip install -r requirements.txt
+```
+Generate plots for different (magnitudes of) biases, fairness metrics, and bias mitigation techniques:
+```
+python plots.py
+```
+
+Python version: 3.8.10
