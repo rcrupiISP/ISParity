@@ -48,7 +48,7 @@ def fit_models(X_train, X_ind_train, X_supp_train, y_train):
 
 
 # code modified from https://github.com/joebaumann/fair-prediction-based-decision-making
-def acceptance_rate(y, y_pred, group_indices):
+def group_selection_rate(y, y_pred, group_indices):
     group_indices = group_indices.astype(bool)
     return sum(y_pred[group_indices] == 1) / len(y_pred[group_indices])
 
@@ -154,8 +154,8 @@ def sufficiency_ratio(y_true, y_pred, sensitive_features):
 # Code modified from https://github.com/fairlearn/fairlearn/blob/main/notebooks/Binary%20Classification%20with%20the%20UCI%20Credit-card%20Default%20Dataset.ipynb
 def get_metrics_df(models_dict, y_true, group, X_ind_test=None, X_supp_test=None, dct_flip=None):
     metrics_dict = {
-        # "Overall selection rate": (
-        #     lambda x: selection_rate(y_true, x), True),
+        "Overall selection rate": (
+            lambda x: selection_rate(y_true, x), True),
         "Demographic parity difference": (
             lambda x: demographic_parity_difference(y_true, x, sensitive_features=group), True),
         "Demographic parity ratio": (
@@ -180,6 +180,10 @@ def get_metrics_df(models_dict, y_true, group, X_ind_test=None, X_supp_test=None
             lambda x: sufficiency_ratio(y_true, x, sensitive_features=group), True),
         "Sufficiency difference": (
             lambda x: sufficiency_difference(y_true, x, sensitive_features=group), True),
+        "Selection rate A0": (
+            lambda x: group_selection_rate(y_true, x, group_indices=1-group), True),
+        "Selection rate A1": (
+            lambda x: group_selection_rate(y_true, x, group_indices=group), True),
         # "Overall AUC": (
         #     lambda x: roc_auc_score(y_true, x), False),
         "ACC score": (

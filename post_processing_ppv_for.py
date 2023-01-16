@@ -588,12 +588,12 @@ def run_ppv_parity_and_for_parity(threshold_nr, s, y, group_indices):
     metric_values_utility = calculate_metrics({"ppv": utils.ppv, "for": utils.forate}, y, s, y_pred_dict, ideal_threshold_a, ideal_threshold_b, group_indices)
 
     print("\nIf we maximize utility without fairness constraints, these are the optimal thresholds:",
-          "\n  ideal_threshold_a:", ideal_threshold_a, "\n  ideal_threshold_b:", ideal_threshold_b)
+          "\n  ideal_threshold_A0:", ideal_threshold_a, "\n  ideal_threshold_A1:", ideal_threshold_b)
     print("Thereby, we achieve the following fairness values:", metric_values_utility)
 
     no_fairness_PPV_rate_0, no_fairness_FOR_rate_0 = metric_values_utility["ppv"][0], metric_values_utility["for"][0]
     no_fairness_PPV_rate_1, no_fairness_FOR_rate_1 = metric_values_utility["ppv"][1], metric_values_utility["for"][1]
-    acceptance_rate_0, acceptance_rate_1 = metric_values_utility["acceptance_rate"][0], metric_values_utility["acceptance_rate"][1]
+    group_selection_rate_0, group_selection_rate_1 = metric_values_utility["group_selection_rate"][0], metric_values_utility["group_selection_rate"][1]
 
     optimal_decision_rules_unconstrained = {
         "ideal_thresholds": (ideal_threshold_a, ideal_threshold_b),
@@ -601,8 +601,8 @@ def run_ppv_parity_and_for_parity(threshold_nr, s, y, group_indices):
         "no_fairness_FOR A0": no_fairness_FOR_rate_0,
         "no_fairness_PPV A1": no_fairness_PPV_rate_1,
         "no_fairness_FOR A1": no_fairness_FOR_rate_1,
-        "acceptance A0": acceptance_rate_0,
-        "acceptance A1": acceptance_rate_1
+        "group_selection_rate_A0": group_selection_rate_0,
+        "group_selection_rate_A1": group_selection_rate_1
     }
     """
 
@@ -618,12 +618,12 @@ def run_ppv_parity_and_for_parity(threshold_nr, s, y, group_indices):
     FOR_rates_b = [utils.forate(
         y, y_pred_dict[t], group_indices[1]) for t in thresholds]
 
-    acceptance_rates_a = [utils.acceptance_rate(
+    group_selection_rates_a = [utils.group_selection_rate(
         y, y_pred_dict[t], group_indices[0]) for t in thresholds]
-    acceptance_rates_b = [utils.acceptance_rate(
+    group_selection_rates_b = [utils.group_selection_rate(
         y, y_pred_dict[t], group_indices[1]) for t in thresholds]
 
-    print("\nUnder PPV parity, these are the optimal thresholds:", "\n  ideal_threshold_a:", ideal_threshold_a, "\n  ideal_threshold_b:", ideal_threshold_b, "\n  PPV rates: ", ideal_rate,
+    print("\nUnder PPV parity, these are the optimal thresholds:", "\n  ideal_threshold_A0:", ideal_threshold_a, "\n  ideal_threshold_A1:", ideal_threshold_b, "\n  PPV rates: ", ideal_rate,
           "\nThis results in the following FOR rates:", "\n  FOR rate group 0:", FOR_rates_a[thresholds.index(ideal_threshold_a)], "\n  FOR rate group 1:", FOR_rates_b[thresholds.index(ideal_threshold_b)])
 
     PPV_parity_ideal_PPV_rate = ideal_rate
@@ -632,16 +632,16 @@ def run_ppv_parity_and_for_parity(threshold_nr, s, y, group_indices):
     PPV_parity_ideal_FOR_rate_1 = FOR_rates_b[thresholds.index(
         ideal_threshold_b)]
 
-    acceptance_rate_0 = acceptance_rates_a[thresholds.index(ideal_threshold_a)]
-    acceptance_rate_1 = acceptance_rates_b[thresholds.index(ideal_threshold_b)]
+    group_selection_rate_0 = group_selection_rates_a[thresholds.index(ideal_threshold_a)]
+    group_selection_rate_1 = group_selection_rates_b[thresholds.index(ideal_threshold_b)]
 
     optimal_decision_rules_ppv = {
         "ideal_thresholds": (ideal_threshold_a, ideal_threshold_b),
         "PPV_parity_ideal_PPV_rate": PPV_parity_ideal_PPV_rate,
         "PPV_parity_ideal_FOR A0": PPV_parity_ideal_FOR_rate_0,
         "PPV_parity_ideal_FOR A1": PPV_parity_ideal_FOR_rate_1,
-        "acceptance A0": acceptance_rate_0,
-        "acceptance A1": acceptance_rate_1
+        "group_selection_rate_A0": group_selection_rate_0,
+        "group_selection_rate_A1": group_selection_rate_1
     }
 
     # Find ideal thresholds for FOR parity
@@ -656,12 +656,12 @@ def run_ppv_parity_and_for_parity(threshold_nr, s, y, group_indices):
     PPV_rates_b = [utils.ppv(y, y_pred_dict[t], group_indices[1])
                    for t in thresholds]
 
-    acceptance_rates_a = [utils.acceptance_rate(
+    group_selection_rates_a = [utils.group_selection_rate(
         y, y_pred_dict[t], group_indices[0]) for t in thresholds]
-    acceptance_rates_b = [utils.acceptance_rate(
+    group_selection_rates_b = [utils.group_selection_rate(
         y, y_pred_dict[t], group_indices[1]) for t in thresholds]
 
-    print("\nUnder FOR parity, these are the optimal thresholds:", "\n  ideal_threshold_a:", ideal_threshold_a, "\n  ideal_threshold_b:", ideal_threshold_b, "\n  FOR rates: ", ideal_rate,
+    print("\nUnder FOR parity, these are the optimal thresholds:", "\n  ideal_threshold_A0:", ideal_threshold_a, "\n  ideal_threshold_A1:", ideal_threshold_b, "\n  FOR rates: ", ideal_rate,
           ".\nThis results in the following PPV rates:", "\n  PPV rate group 0:", PPV_rates_a[thresholds.index(ideal_threshold_a)], "\n  PPV rate group 1:", PPV_rates_b[thresholds.index(ideal_threshold_b)])
 
     FOR_parity_ideal_FOR_rate = ideal_rate
@@ -670,16 +670,16 @@ def run_ppv_parity_and_for_parity(threshold_nr, s, y, group_indices):
     FOR_parity_ideal_PPV_rate_1 = PPV_rates_b[thresholds.index(
         ideal_threshold_b)]
 
-    acceptance_rate_0 = acceptance_rates_a[thresholds.index(ideal_threshold_a)]
-    acceptance_rate_1 = acceptance_rates_b[thresholds.index(ideal_threshold_b)]
+    group_selection_rate_0 = group_selection_rates_a[thresholds.index(ideal_threshold_a)]
+    group_selection_rate_1 = group_selection_rates_b[thresholds.index(ideal_threshold_b)]
 
     optimal_decision_rules_for = {
         "ideal_thresholds": (ideal_threshold_a, ideal_threshold_b),
         "FOR_parity_ideal_FOR_rate": FOR_parity_ideal_FOR_rate,
         "FOR_parity_ideal_PPV A0": FOR_parity_ideal_PPV_rate_0,
         "FOR_parity_ideal_PPV A1": FOR_parity_ideal_PPV_rate_1,
-        "acceptance A0": acceptance_rate_0,
-        "acceptance A1": acceptance_rate_1
+        "group_selection_rate_A0": group_selection_rate_0,
+        "group_selection_rate_A1": group_selection_rate_1
     }
 
     return optimal_decision_rules_ppv, optimal_decision_rules_for
