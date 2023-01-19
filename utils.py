@@ -1,6 +1,7 @@
 # General imports
 import time
 
+import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -52,6 +53,19 @@ def group_selection_rate(y, y_pred, group_indices):
     group_indices = group_indices.astype(bool)
     return sum(y_pred[group_indices] == 1) / len(y_pred[group_indices])
 
+
+def tpr(y, y_pred, group_indices):
+    group_indices = group_indices.astype(bool)
+    if sum(y[group_indices] == 1) == 0:
+        return 1.0
+    return sum((y[group_indices] == 1) & (y_pred[group_indices] == 1)) / sum(y[group_indices] == 1)
+
+
+def fpr(y, y_pred, group_indices):
+    group_indices = group_indices.astype(bool)
+    if sum(y[group_indices] == 0) == 0:
+        return 1.0
+    return sum((y[group_indices] == 0) & (y_pred[group_indices] == 1)) / sum(y[group_indices] == 0)
 
 def ppv(y, y_pred, group_indices):
     group_indices = group_indices.astype(bool)
@@ -184,6 +198,22 @@ def get_metrics_df(models_dict, y_true, group, X_ind_test=None, X_supp_test=None
             lambda x: group_selection_rate(y_true, x, group_indices=1-group), True),
         "Selection rate A1": (
             lambda x: group_selection_rate(y_true, x, group_indices=group), True),
+        "TPR A0": (
+            lambda x: tpr(y_true, x, group_indices=1-group), True),
+        "TPR A1": (
+            lambda x: tpr(y_true, x, group_indices=group), True),
+        "FPR A0": (
+            lambda x: fpr(y_true, x, group_indices=1-group), True),
+        "FPR A1": (
+            lambda x: fpr(y_true, x, group_indices=group), True),
+        "PPV A0": (
+            lambda x: ppv(y_true, x, group_indices=1-group), True),
+        "PPV A1": (
+            lambda x: ppv(y_true, x, group_indices=group), True),
+        "FOR A0": (
+            lambda x: forate(y_true, x, group_indices=1-group), True),
+        "FOR A1": (
+            lambda x: forate(y_true, x, group_indices=group), True),
         # "Overall AUC": (
         #     lambda x: roc_auc_score(y_true, x), False),
         "ACC score": (
@@ -457,3 +487,11 @@ def timer(func):
         return value
 
     return wrapper_timer
+
+def set_plot_style():
+    sns.set_context("paper")
+    sns.set(font='serif')
+    sns.set_style("white", {
+        "font.family": "serif",
+        "font.serif": ["Times", "Palatino", "serif"]
+    })
