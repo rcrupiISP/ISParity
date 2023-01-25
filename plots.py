@@ -11,13 +11,13 @@ from sklearn.metrics import (adjusted_mutual_info_score, mutual_info_score,
 from utils import *
 
 
-def bias_mitigation_plot(detailed,results_df, bias_values, model_names, metrics, fig_title, function):
+def bias_mitigation_plot(detailed,results_df, bias_values, model_names, metrics, fig_title, xticks, xticklabels, xlabel, function):
     # plot fig
     set_plot_style()
     ncols = 4
     nrows = math.ceil(len(model_names)/ncols)
     fig, axes = plt.subplots(
-        nrows=nrows, ncols=ncols, sharex=True, sharey=True, figsize=(10, 5))
+        nrows=nrows, ncols=ncols, sharex=True, sharey=True, figsize=(9, 4))
     # delete subfigures if too many
     [fig.delaxes(axes[nrows-1][ncols-1-i]) for i in range(ncols *nrows-len(model_names))] 
 
@@ -48,8 +48,6 @@ def bias_mitigation_plot(detailed,results_df, bias_values, model_names, metrics,
         #initialize color palette with selection rates being gray with markers
         for m in metrics:
             if m not in pal.keys():
-                if m=='Demographic parity difference':
-                    m='DP difference'
                 pal[m] = next(palette)
                 pal_barplot[m] = next(palette_barplot)
         markers = {label:'' for label, color in pal.items()}
@@ -58,11 +56,6 @@ def bias_mitigation_plot(detailed,results_df, bias_values, model_names, metrics,
         markers['Selection rate A1'] = selection_rate_markers[1]
     
 
-    if fig_title is None:
-        fig.suptitle(f'{function.__name__}')
-    else:
-        fig.suptitle(f'{fig_title}')
-    # plt.subplots_adjust(hspace=0.5)
     for model, ax in zip(model_names, axes.ravel()):
         if model == "Unmitigated":
             ax.set_title(f'{model}')
@@ -71,11 +64,14 @@ def bias_mitigation_plot(detailed,results_df, bias_values, model_names, metrics,
         if len(bias_values) > 1:
 
             if detailed:
-                sns.lineplot(ax=ax, data=results_df.loc[(results_df['model_name'] == model)], x="bias_value", y="value", hue="metric", palette=pal, sort=False, style ='metric', alpha=0.6, dashes=False, markers=markers)
+                sns.lineplot(ax=ax, data=results_df.loc[(results_df['model_name'] == model)], x="bias", y="value", hue="metric", palette=pal, sort=False, style ='metric', alpha=0.6, dashes=False, markers=markers)
             else:
-                sns.lineplot(ax=ax, data=results_df.loc[(results_df['model_name'] == model) & (results_df['metric'] != "Selection rate A0") & (results_df['metric'] != "Selection rate A1")], x="bias_value", y="value", hue="metric", palette=pal, sort=False, alpha=0.6)
-                sns.lineplot(ax=ax, data=results_df.loc[(results_df['model_name'] == model) & ((results_df['metric'] == "Selection rate A0") | (results_df['metric'] == "Selection rate A1"))], x="bias_value", y="value", hue="metric", palette=pal, style="metric", alpha=0.6, dashes=False, markers=selection_rate_markers)
+                sns.lineplot(ax=ax, data=results_df.loc[(results_df['model_name'] == model) & (results_df['metric'] != "Selection rate A0") & (results_df['metric'] != "Selection rate A1")], x="bias", y="value", hue="metric", palette=pal, sort=False, alpha=0.6)
+                sns.lineplot(ax=ax, data=results_df.loc[(results_df['model_name'] == model) & ((results_df['metric'] == "Selection rate A0") | (results_df['metric'] == "Selection rate A1"))], x="bias", y="value", hue="metric", palette=pal, style="metric", alpha=0.6, dashes=False, markers=selection_rate_markers)
             ax.get_legend().remove()
+            if xlabel:
+                plt.xlabel(xlabel)
+                ax.set(xlabel=xlabel)
             # ax.set(ylabel=None)
         else:
             barplot_color = [pal_barplot[i] for i in results_df.loc[results_df['model_name'] == model]['metric']]
@@ -87,12 +83,18 @@ def bias_mitigation_plot(detailed,results_df, bias_values, model_names, metrics,
         ax.set_ylim([0, 1])
         if bias_values[0] > bias_values[-1]:
             ax.invert_xaxis()
+        if xticks:
+            if xticklabels:
+                plt.xticks(ticks=xticks, labels=xticklabels)
+            else:
+                plt.xticks(ticks=xticks)
         lines, labels = plt.gca().get_legend_handles_labels()
         # fig.supylabel('value')
         handles = [Line2D([0], [0], marker=markers[label], label=label, color=color) for label, color in pal.items()]
         plt.figlegend(handles=handles, loc='lower center', ncol=math.ceil(len(metrics)/2),bbox_to_anchor=(0.5, -0.1), labelspacing=0.)
+    plt.yticks(ticks=[0,0.5,1], labels=['0','0.5','1'])
     plt.tight_layout()
-    base_path = f"plots/bias_plots_v2"
+    base_path = f"plots/bias_plots_v3"
     if detailed: base_path += '_detailed'
     # create directory if it does not exist yet
     Path(base_path).mkdir(parents=True, exist_ok=True)
@@ -101,7 +103,7 @@ def bias_mitigation_plot(detailed,results_df, bias_values, model_names, metrics,
     plt.clf()
 
 
-def get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values, fig_title):
+def get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values, fig_title, xticks=None, xticklabels=None, xlabel=None):
     def decorator(function):
         @timer
         def wrapper():
@@ -110,11 +112,11 @@ def get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_
                 f"\n###############\n     plotting {function.__name__} for the bias values {str(bias_values)} ...\n###############\n")
             results = []
             model_names = ['Unmitigated', 'DP', 'FTU',
-                           'TPR', 'FPR', 'EO', 'PPV', 'FOR']
+                           'TPR', 'FPR', 'Separation', 'PPV', 'FOR']
             if detailed:
                 metrics = ['Selection rate A0', 'Selection rate A1', 'TPR A0', 'TPR A1', 'FPR A0', 'FPR A1', 'PPV A0', 'PPV A1', 'FOR A0', 'FOR A1']
             else:
-                metrics = ['Selection rate A0', 'Selection rate A1', 'ACC score', 'Demographic parity difference', 'TPR difference', 'FPR difference','PPV difference', 'FOR difference']
+                metrics = ['Selection rate A0', 'Selection rate A1', 'ACC score', 'DP difference', 'TPR difference', 'FPR difference','PPV difference', 'FOR difference']
             for bias in bias_values:
                 print(f"\nbias: {function.__name__} // value: {bias}\n")
                 all_metrics = function(bias)
@@ -124,22 +126,18 @@ def get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_
                     continue
                 for model in model_names:
                     for metric in metrics:
-                        if metric == 'Demographic parity difference':
-                            metric_label = 'DP difference'
-                        else:
-                            metric_label = metric
                         # append all accuracy and fairness metrics
                         results.append(
-                            [bias, model, metric_label, all_metrics.loc[metric, model]])
+                            [bias, model, metric, all_metrics.loc[metric, model]])
 
             if mutual_information_plot:
                 results_df = pd.DataFrame(results, columns=[
-                                          'bias_value', 'col1', 'col2', 'col1_and_col2', 'mutual_info_metric', 'value'])
+                                          'bias', 'col1', 'col2', 'col1_and_col2', 'mutual_info_metric', 'value'])
                 return (fig_title, results_df)
             else:
                 results_df = pd.DataFrame(
-                    results, columns=['bias_value', 'model_name', 'metric', 'value'])
-                bias_mitigation_plot(detailed,results_df, bias_values, model_names, metrics, fig_title, function)
+                    results, columns=['bias', 'model_name', 'metric', 'value'])
+                bias_mitigation_plot(detailed,results_df, bias_values, model_names, metrics, fig_title, xticks, xticklabels, xlabel, function)
         return wrapper
     return decorator
 
@@ -190,7 +188,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias)
         return pipeline(param_dict)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Measurement bias on R")
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Measurement bias on R", xticks=[0,3,6,9], xlabel=r"bias ($\beta^R_{m}$)")
     def measurement_bias_on_R(bias):
         # measurement on R
         # l_m = [0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -200,8 +198,8 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias)
         return pipeline(param_dict)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[False, True], fig_title="Omission bias")
-    def omission(bias):
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[False, True], fig_title="Omission bias", xticks=[0,1], xticklabels=['False', 'True'])
+    def omission_bias(bias):
         # omission
         # l_o = [False, True]
         param_dict = {"dim": dim, "l_y": 0, "l_m_y": 0, "thr_supp": 1, "l_h_r": 0,  "l_h_q": 0,
@@ -210,7 +208,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias)
         return pipeline(param_dict)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0.01, 0.008, 0.006, 0.004, 0.002, 0.001, 0.0008, 0.0006, 0.0004, 0.0002, 0.0001, 0.00009], fig_title="Undersampling")
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0.01, 0.008, 0.006, 0.004, 0.002, 0.001, 0.0008, 0.0006, 0.0004, 0.0002, 0.0001, 0.00009], fig_title="Undersampling", xticks=[0.01,0.005,0.00009], xticklabels=['0.01','0.005','0.00009'], xlabel=r"bias ($p_u \perp\!\!\!\!\!\perp R$)")
     def undersampling(bias):
         # sample
         # p_u = [1, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001, 0.00005, 0.00001, 0.000005, 0.000001]
@@ -220,7 +218,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias)
         return pipeline(param_dict)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Measurement bias on Y")
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Measurement bias on Y", xticks=[0,3,6,9], xlabel=r"bias ($\beta^Y_{m}$)")
     def measurement_bias_on_Y(bias):
         # measurement bias on Y (P_Y as target). Performance are calculated on Y
         # l_m_y = [0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -230,7 +228,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias, y_bias_meas=True)
         return pipeline(param_dict, y_bias_meas=True)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[1, 0.8, 0.6, 0.4, 0.2, 0.1, 0.075, 0.05, 0.025, 0.01, 0.005, 0.001, 0.0005], fig_title="Representation bias")
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[1, 0.8, 0.6, 0.4, 0.2, 0.1, 0.075, 0.05, 0.025, 0.01, 0.005, 0.001, 0.0005], fig_title="Representation bias", xticks=[1,0.5,0.0005], xticklabels=['1', '0.5', '0.0005'], xlabel=r"bias ($p_u \;\;\;\,\,\not\!\!\!\!\!\!\!\perp\!\!\!\!\!\perp R$)")
     def representation_bias(bias):
         # representation bias
         # p_u = [1, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001, 0.00005, 0.00001, 0.000005, 0.000001]
@@ -240,8 +238,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias)
         return pipeline(param_dict)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on R")
-    # @mutual_information_plot, get_metrics_for_various_bias_values(bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3], fig_title="Historical bias on R")
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on R", xticks=[0,3,6,9], xlabel=r"bias ($\beta^R_{h}$)")
     def historical_bias_on_R(bias):
         # historical bias on R
         # l_h_r = [0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -251,7 +248,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias)
         return pipeline(param_dict)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on Y")
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on Y", xticks=[0,3,6,9], xlabel=r"bias ($\beta^Y_{h}$)")
     def historical_bias_on_Y(bias):
         # historical bias on Y
         # l_y = [0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -261,7 +258,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias)
         return pipeline(param_dict)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on Q")
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on Q", xticks=[0,3,6,9], xlabel=r"bias ($\beta^Q_{h}$)")
     def historical_bias_on_Q(bias):
         # historical bias on Q
         # l_h_q = [0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -271,7 +268,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias)
         return pipeline(param_dict)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on R and Y")
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on R and Y", xticks=[0,3,6,9], xlabel=r"bias ($\beta^R_{h},\beta^Y_{h}$)")
     def historical_bias_on_R_and_Y(bias):
         # historical bias on R and Y
         # l_h_r and l_y = [0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -281,7 +278,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias)
         return pipeline(param_dict)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on Q and Y")
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on Q and Y", xticks=[0,3,6,9], xlabel=r"bias ($\beta^Q_{h},\beta^Y_{h}$)")
     def historical_bias_on_Q_and_Y(bias):
         # historical bias on Q and Y
         # l_h_q and l_y = [0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -291,7 +288,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias)
         return pipeline(param_dict)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on Q and R and Y")
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias on Q and R and Y", xticks=[0,3,6,9], xlabel=r"bias ($\beta^Q_{h},\beta^R_{h},\beta^Y_{h}$)")
     def historical_bias_on_Q_and_R_and_Y(bias):
         # historical bias on Q and R and Y
         # l_h_r and l_h_q and l_y = [0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -301,7 +298,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
             return mutual_information(param_dict, mutual_info_metric, bias)
         return pipeline(param_dict)
 
-    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias and measurement bias on R")
+    @get_metrics_for_various_bias_values(detailed, mutual_information_plot, bias_values=[0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9], fig_title="Historical bias and measurement bias on R", xticks=[0,3,6,9], xlabel=r"bias ($\beta^R_{h},\beta^R_{m}$)")
     def historical_bias_and_measurement_bias_on_R(bias):
         # historical bias on R
         # l_h_r and l_m = [0, 0.1, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -318,7 +315,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
         results.append(measurement_bias_on_R())
         results.append(undersampling())
         results.append(representation_bias())
-        results.append(omission())
+        results.append(omission_bias())
         results.append(historical_bias_on_Y())
         results.append(historical_bias_on_R())
         results.append(historical_bias_on_Q())
@@ -330,7 +327,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
 
     else:
         no_bias()
-        omission()
+        omission_bias()
         undersampling()
         measurement_bias_on_Y()
         representation_bias()
@@ -339,7 +336,6 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
         historical_bias_on_R_and_Y()
         historical_bias_on_Q_and_Y()
         historical_bias_on_Q_and_R_and_Y()
-
         measurement_bias_on_R()
         historical_bias_on_R()
         historical_bias_and_measurement_bias_on_R()
@@ -376,8 +372,8 @@ def mutual_information_plot(mutual_info_metric=normalized_mutual_info_score):
 
     for (fig_title, results_df), ax in zip(mutual_information_metrics, axes.ravel()):
         ax.set_title(fig_title)
-        if len(results_df['bias_value'].unique()) > 1:
-            sns.lineplot(ax=ax, data=results_df, x="bias_value", y="value",
+        if len(results_df['bias'].unique()) > 1:
+            sns.lineplot(ax=ax, data=results_df, x="bias", y="value",
                          hue="col1_and_col2", palette=pal, sort=False, alpha=0.6)
             ax.get_legend().remove()
         else:

@@ -170,9 +170,9 @@ def get_metrics_df(models_dict, y_true, group, X_ind_test=None, X_supp_test=None
     metrics_dict = {
         "Overall selection rate": (
             lambda x: selection_rate(y_true, x), True),
-        "Demographic parity difference": (
+        "DP difference": (
             lambda x: demographic_parity_difference(y_true, x, sensitive_features=group), True),
-        "Demographic parity ratio": (
+        "DP ratio": (
             lambda x: demographic_parity_ratio(y_true, x, sensitive_features=group), True),
         # "Overall balanced error rate": (
         #     lambda x: 1-balanced_accuracy_score(y_true, x), True),
@@ -367,7 +367,7 @@ def mitigations(X_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_tes
         X_test, sensitive_features=X_test[sens_var])
     postprocess_preds_eo_flip = postprocess_est_eo.predict(
         X_flip, sensitive_features=X_flip[sens_var])
-    dct_flip['EO'] = 1-abs(postprocess_preds_eo -
+    dct_flip['Separation'] = 1-abs(postprocess_preds_eo -
                            postprocess_preds_eo_flip).mean()
 
     # # # demographic_parity
@@ -413,7 +413,7 @@ def mitigations(X_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_tes
                    "Unmitigated": (clf.predict(X_test), clf.predict_proba(X_test)[:, 1]),
                    "FTU":  (clf_ind.predict(X_ind_test), clf_ind.predict_proba(X_ind_test)[:, 1]),
                    "Suppression_"+str(thr_supp): (clf_supp.predict(X_supp_test), clf_supp.predict_proba(X_supp_test)[:, 1]),
-                   "EO": (postprocess_preds_eo, postprocess_preds_eo),
+                   "Separation": (postprocess_preds_eo, postprocess_preds_eo),
                    "TPR": (postprocess_preds_tpr, postprocess_preds_tpr),
                    "FPR": (postprocess_preds_fpr, postprocess_preds_fpr),
                    "PPV": (postprocess_preds_ppv, postprocess_preds_ppv),
