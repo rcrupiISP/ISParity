@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -23,15 +24,15 @@ def create_synth(dim=15000, l_y=4, l_m_y=0, thr_supp=1, l_h_r=1.5,  l_h_q=1, l_m
     l_h_q: float, optional
         Lambda coefficient for historical bias on Q
     l_m: float, optional
-        Lambda coefficient for measurement bias. If l_m!=0 P substitute R.
+        Lambda coefficient for measurement bias. If l_m!=0 P substitutes R.
     p_u: float, optional
         Percentage of undersampling instance with A=1
     l_r: bool, optional
-        Boolean for inducing representation bias, that is undersampling conditioning on a variable, e.g. X2
+        Boolean for inducing representation bias, that is undersampling conditioning on a variable, e.g. R
     l_o: bool, optional
         Boolean variable for excluding an important variable, e.g. X2
     l_y_b: float, optional
-        Lambda coefficient for interaction proxy bias
+        Lambda coefficient for interaction proxy bias, i.e., historical bias on the label y with lower values of y for individuals in group A=1 with high values for the feature R
     l_q: float, optional
         Lambda coefficient for importance of Q for Y
     sy: float, optional
@@ -123,37 +124,80 @@ def create_synth(dim=15000, l_y=4, l_m_y=0, thr_supp=1, l_h_r=1.5,  l_h_q=1, l_m
 
 def main():
 
-    # run: python generate_dataset.py -f my_biased_dataset
+    # generate unbiased dataset: python generate_dataset.py -f my_unbiased_dataset
+    # generate biased dataset: python generate_dataset.py -f my_biased_dataset TODO
     # get help with: python generate_dataset.py -h
 
-    parser = argparse.ArgumentParser(description='Generating a biased dataset.')
-    #parser.add_argument('-c', '--config_filename', type=str, required=True, help='config file name.')
-    #parser.add_argument('-e_id', '--experiment_id', type=int, required=False, help='Already existing exeriment id if an experiment is to be continued. If not provided, a new experiment with a new id will be generated.')
-    #parser.add_argument('-e_desc', '--experiment_desc', type=str, required=False, help='Description of the experiment. Only considered if experiment_id is not provided!')
+    parser = argparse.ArgumentParser(
+        description='Generating a biased dataset.', argument_default=argparse.SUPPRESS)
 
-    parser.add_argument('-f', '--filename', type=str, required=True, help='')
+    parser.add_argument('-p', '--path', type=str, required=False,
+                        help='The name of the directory where the new dataset should be stored. Existing csv files are overwritten')
 
-    # TODO: finish implementing main function for dataset generation
-    parser.add_argument('-dim', type=str, required=False, help='')
-    parser.add_argument('-l_y', type=str, required=False, help='')
-    parser.add_argument('-l_m_y', type=str, required=False, help='')
-    parser.add_argument('-thr_supp', type=str, required=False, help='')
-    parser.add_argument('-l_h_r', type=str, required=False, help='')
-    parser.add_argument('-l_h_q', type=str, required=False, help='')
-    parser.add_argument('-l_m', type=str, required=False, help='')
-    parser.add_argument('-p_u', type=str, required=False, help='')
-    parser.add_argument('-l_r', type=str, required=False, help='')
-    parser.add_argument('-l_o', type=str, required=False, help='')
-    parser.add_argument('-l_y_b', type=str, required=False, help='')
-    parser.add_argument('-l_q', type=str, required=False, help='')
-    parser.add_argument('-sy', type=str, required=False, help='')
-    parser.add_argument('-l_r_q', type=str, required=False, help='')
+    # dataset properties
+    parser.add_argument('-dim', type=int, required=False,
+                        help='Dimension of the dataset')
+    parser.add_argument('-sy', type=float, required=False,
+                        help='Standard deviation of the noise of Y')
+    parser.add_argument('-l_q', type=float, required=False,
+                        help='Lambda coefficient for importance of Q for Y')
+    parser.add_argument('-l_r_q', type=float, required=False,
+                        help='Lambda coefficient that quantifies the influence from R to Q')
+    parser.add_argument('-thr_supp', type=float, required=False,
+                        help='Threshold correlation for discarding features too much correlated with s')
+    # biases
+    parser.add_argument('-l_y', type=float, required=False,
+                        help='Lambda coefficient for historical bias on the target y')
+    parser.add_argument('-l_m_y', type=float, required=False,
+                        help='Lambda coefficient for measurement bias on the target y')
+    parser.add_argument('-l_h_r', type=float, required=False,
+                        help='Lambda coefficient for historical bias on R')
+    parser.add_argument('-l_h_q', type=float, required=False,
+                        help='Lambda coefficient for historical bias on Q')
+    parser.add_argument('-l_m', type=float, required=False,
+                        help='Lambda coefficient for measurement bias on the feature R. If l_m!=0 P substitutes R.')
+    parser.add_argument('-p_u', type=float, required=False,
+                        help='Percentage of undersampling instance with A=1')
+    parser.add_argument('-l_r', type=str, required=False,
+                        help='Boolean for inducing representation bias, that is undersampling conditioning on a variable, e.g. R')
+    parser.add_argument('-l_o', type=str, required=False,
+                        help='Boolean variable for excluding an important variable (ommited variable bias), e.g. R (or its proxy)')
+    parser.add_argument('-l_y_b', type=float, required=False,
+                        help='Lambda coefficient for interaction proxy bias, i.e., historical bias on the label y with lower values of y for individuals in group A=1 with high values for the feature R')
 
     args = parser.parse_args()
+    args = vars(args)
 
-    create_synth(args.dim, args.l_y, args.l_m_y, args.thr_supp, args.l_h_r,  args.l_h_q, args.l_m, args.p_u, args.l_r, args.l_o, args.l_y_b, args.l_q, args.sy, args.l_r_q)
+    path = args.pop('path', None)
+    if path is None:
+        path = 'my_new_dataset'
+    path = f'datasets/{path}'
+    # create directory if it does not exist yet
+    Path(path).mkdir(parents=True, exist_ok=True)
 
-    print(f'\nThe dataset has been generated and saved as {args.filename}.csv :)\n')
+    if 'l_r' in args.keys():
+        args['l_r'] = args['l_r'].lower() in ['true', '1', 1]
+    if 'l_o' in args.keys():
+        args['l_o'] = args['l_o'].lower() in ['true', '1', 1]
+
+    # generat the (biased) dataset
+    X_train, X_ind_train, X_supp_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_train_real, y_test_real = create_synth(
+        **args)
+
+    # save the generated dataset
+    X_train.to_csv(Path(path).joinpath('X_train.csv'))
+    X_ind_train.to_csv(Path(path).joinpath('X_ind_train.csv'))
+    X_supp_train.to_csv(Path(path).joinpath('X_supp_train.csv'))
+    X_test.to_csv(Path(path).joinpath('X_test.csv'))
+    X_ind_test.to_csv(Path(path).joinpath('X_ind_test.csv'))
+    X_supp_test.to_csv(Path(path).joinpath('X_supp_test.csv'))
+    y_train.to_csv(Path(path).joinpath('y_train.csv'))
+    y_test.to_csv(Path(path).joinpath('y_test.csv'))
+    y_train_real.to_csv(Path(path).joinpath('y_train_real.csv'))
+    y_test_real.to_csv(Path(path).joinpath('y_test_real.csv'))
+
+    print(
+        f'\n:)\n:) The dataset has been generated and saved in the directory {path}/\n:)')
 
 
 if __name__ == "__main__":
