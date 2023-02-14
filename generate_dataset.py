@@ -63,7 +63,6 @@ def create_synth(dim=15000, l_y=4, l_m_y=0, thr_supp=1, l_h_r=1.5,  l_h_q=1, l_m
 
     # Y var
     # y target, with measurement and historical bias
-    # TODO: add randomization to the way measurement bias on y is introduced?
     y = R - l_q*Q - l_y*A - l_m_y*A + Ny + l_y_b*R*A
     # y only historical, no measurement bias
     y_real = R - l_q*Q - l_y*A + Ny + l_y_b*R*A
