@@ -371,6 +371,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
 
     if mutual_information_plot:
         results = []
+        # specify the scenarios for which the mutual information should be calculated
         results.append(no_bias())
         results.append(measurement_bias_on_R())
         results.append(measurement_bias_on_Y())
@@ -385,6 +386,7 @@ def bias_plots(detailed=False, mutual_information_plot=False, mutual_info_metric
         return results
 
     else:
+        # specify the scenarios to be investigated
         no_bias()
         measurement_bias_on_R()
         measurement_bias_on_Y()

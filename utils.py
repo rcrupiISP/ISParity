@@ -28,7 +28,8 @@ from sklearn.tree import DecisionTreeClassifier
 
 from generate_dataset import create_synth
 from post_processing_ppv_for import (apply_decision_rule,
-                                     run_ppv_parity_and_for_parity)
+                                     run_ppv_parity_and_for_parity,
+                                     run_sufficiency)
 
 
 def fit_models(X_train, X_ind_train, X_supp_train, y_train):
@@ -275,6 +276,31 @@ def threshold_optimizer_ppv_for(s_train, y_train, group_indices, group_indices_t
     return postprocess_preds_ppv, postprocess_preds_for
 
 
+def threshold_optimizer_sufficiency(s_train, y_train, group_indices, group_indices_test, s_test):
+    threshold_nr = 100
+    group_indices = [(1-group_indices).astype(
+        bool), group_indices.astype(bool)]
+
+    run_sufficiency(threshold_nr, s_train, y_train, group_indices)
+
+    """
+    optimal_decision_rules_ppv, optimal_decision_rules_for = run_ppv_parity_and_for_parity(
+        threshold_nr, s_train, y_train, group_indices)
+    threshold_ppv_A0, threshold_ppv_A1 = optimal_decision_rules_ppv['ideal_thresholds']
+    threshold_for_A0, threshold_for_A1 = optimal_decision_rules_for['ideal_thresholds']
+
+    group_indices_test_A1 = group_indices_test.astype(bool)
+    group_indices_test_A0 = (1-group_indices_test).astype(bool)
+
+    postprocess_preds_ppv = apply_decision_rule(
+        s_test, group_indices_test_A0, group_indices_test_A1, threshold_ppv_A0, threshold_ppv_A1)
+    postprocess_preds_for = apply_decision_rule(
+        s_test, group_indices_test_A0, group_indices_test_A1, threshold_for_A0, threshold_for_A1)
+
+    return postprocess_preds_ppv, postprocess_preds_for
+    """
+
+
 def mitigations(X_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_test_real,
                 thr_supp, sens_var, cond_var,
                 clf, clf_ind, clf_supp
@@ -357,6 +383,10 @@ def mitigations(X_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_tes
         clf.predict_proba(X_test)[:, 1], index=X_test.index)
     postprocess_preds_ppv, postprocess_preds_for = threshold_optimizer_ppv_for(
         unmitigated_scores_train, y_train, X_train[sens_var], X_test[sens_var], unmitigated_scores_test)
+    
+    # # # Sufficiency
+    #postprocess_preds_sufficiency = threshold_optimizer_sufficiency(
+    #    unmitigated_scores_train, y_train, X_train[sens_var], X_test[sens_var], unmitigated_scores_test)
 
     # # # equalized_odds
     postprocess_est_eo = ThresholdOptimizer(estimator=clf,
@@ -408,6 +438,7 @@ def mitigations(X_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_tes
         dct_flip['CDP'] = np.nan
 
     # # # Build dictionary of mitigated prediction
+    # TODO: add Sufficiency
     models_dict = {"Y": (y_test, y_test),
                    "Y True": (y_test_real, y_test_real),
                    "Unmitigated": (clf.predict(X_test), clf.predict_proba(X_test)[:, 1]),
@@ -416,6 +447,7 @@ def mitigations(X_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_tes
                    "Separation": (postprocess_preds_eo, postprocess_preds_eo),
                    "TPR": (postprocess_preds_tpr, postprocess_preds_tpr),
                    "FPR": (postprocess_preds_fpr, postprocess_preds_fpr),
+                   #"Sufficiency": (postprocess_preds_sufficiency, postprocess_preds_sufficiency),
                    "PPV": (postprocess_preds_ppv, postprocess_preds_ppv),
                    "FOR": (postprocess_preds_for, postprocess_preds_for),
                    "DP": (postprocess_preds_dp, postprocess_preds_dp),

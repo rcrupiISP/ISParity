@@ -262,7 +262,8 @@ class UtilityFunction:
             self.get_utility_with_randomization = self.get_utility_with_randomization_proba
         else:
             self.calculate_utility = self.calculate_utility_not_proba
-            self.get_utility_with_randomization = self.get_utility_with_randomization_not_proba
+            #self.get_utility_with_randomization = self.get_utility_with_randomization_not_proba
+            self.get_utility_with_randomization = self.get_utility_with_randomization_proba
         self.normalize = normalize
 
     def get_optimal_unconstrained_decision_rule(self):
@@ -348,13 +349,13 @@ def get_PPV_FOR_rates_for_all_decision_rules(y, s, thresholds, group_indices, fa
     if y_pred_dict == None:
         y_pred_dict = {t: s.between(t[0], t[1]) for t in thresholds}
     rates_a_PPV = np.array([fairness_functions[0](
-        y, s, y_pred_dict[t], group_indices[0]) for t in thresholds])
+        y, y_pred_dict[t], group_indices[0]) for t in thresholds])
     rates_a_FOR = np.array([fairness_functions[1](
-        y, s, y_pred_dict[t], group_indices[0]) for t in thresholds])
+        y, y_pred_dict[t], group_indices[0]) for t in thresholds])
     rates_b_PPV = np.array([fairness_functions[0](
-        y, s, y_pred_dict[t], group_indices[1]) for t in thresholds])
+        y, y_pred_dict[t], group_indices[1]) for t in thresholds])
     rates_b_FOR = np.array([fairness_functions[1](
-        y, s, y_pred_dict[t], group_indices[1]) for t in thresholds])
+        y, y_pred_dict[t], group_indices[1]) for t in thresholds])
 
     return rates_a_PPV, rates_a_FOR, rates_b_PPV, rates_b_FOR
 
@@ -575,8 +576,9 @@ def generate_solution_space_and_maximize_utility(y, group0_base_rate, group1_bas
 def run_ppv_parity_and_for_parity(threshold_nr, s, y, group_indices):
     my_utility_function = UtilityFunction(
         1, 0, 0, 1, proba=False)  # corresponds to accuracy
+    optimal_unconstrained_decision_rule = my_utility_function.get_optimal_unconstrained_decision_rule()
     thresholds = generate_upper_and_lower_bound_thresholds(
-        s, threshold_nr, 0.5)
+        s, threshold_nr, optimal_unconstrained_decision_rule)
     y_pred_dict = {t: s.between(t[0], t[1]) for t in thresholds}
 
     """
@@ -697,3 +699,38 @@ def apply_decision_rule(s, group_indices_a, group_indices_b, thresholds_a, thres
         y_pred[group_indices_b] = s[group_indices_b] >= thresholds_b
     y_pred = y_pred.astype(bool)
     return y_pred
+
+
+def run_sufficiency(threshold_nr, s, y, group_indices):
+    my_utility_function = UtilityFunction(
+        1, 0, 0, 1, proba=False)  # corresponds to accuracy
+    optimal_unconstrained_decision_rule = my_utility_function.get_optimal_unconstrained_decision_rule()
+    thresholds = generate_upper_and_lower_bound_thresholds(
+        s, threshold_nr, optimal_unconstrained_decision_rule)
+    y_pred_dict = {t: s.between(t[0], t[1]) for t in thresholds}
+
+    group0_base_rate, group1_base_rate = mean(s[group_indices[0]]), mean(s[group_indices[1]])
+
+    # Find optimal decision rule under sufficiency
+
+    fairness_functions = (utils.ppv, utils.forate)
+
+    rates_a_PPV, rates_a_FOR, rates_b_PPV, rates_b_FOR = get_PPV_FOR_rates_for_all_decision_rules(
+        y=y, s=s, thresholds=thresholds, group_indices=group_indices, fairness_functions=fairness_functions, utility_function=my_utility_function.calculate_utility, y_pred_dict=y_pred_dict)
+
+    optimal_solution, max_base_rate, min_base_rate, solution_space_without_None_values, rates_a_PPV_without_None_values, turning_point_t_index, min_FOR, max_FOR = generate_solution_space_and_maximize_utility(
+        y, group0_base_rate, group1_base_rate, rates_a_PPV, rates_a_FOR, rates_b_PPV, rates_b_FOR, thresholds, group_indices, my_utility_function, optimal_unconstrained_decision_rule, s, y_pred_dict)
+
+    optimal_solution_total_utility = [v["total_utility"] for (k, v) in optimal_solution.items()]
+    optimal_solution_PPV_rates = [v["PPV_rate"] for (k, v) in optimal_solution.items()]
+    optimal_solution_FOR_rates = [v["FOR_rate"] for (k, v) in optimal_solution.items()]
+    optimal_solution_threshold_a = [v["threshold_a"] for (k, v) in optimal_solution.items()]
+    optimal_solution_threshold_b = [v["threshold_b"] for (k, v) in optimal_solution.items()]
+    optimal_solution_randomization_a = [v["randomization_a"] for (k, v) in optimal_solution.items()]
+    optimal_solution_randomization_b = [v["randomization_b"] for (k, v) in optimal_solution.items()]
+
+    index_of_utils = np.argmax(optimal_solution_total_utility)
+
+    print("\nUnder sufficiency, these are the optimal thresholds:", "\n  ideal_threshold_a:", optimal_solution_threshold_a[index_of_utils], "randomization_a:", optimal_solution_randomization_a[index_of_utils], "\n  ideal_threshold_b:", optimal_solution_threshold_b[index_of_utils], "randomization_b:",
+        optimal_solution_randomization_b[index_of_utils], "\nThis results in the following rates (for both groups!):\n  PPV:", optimal_solution_PPV_rates[index_of_utils], "\n  FOR:", optimal_solution_FOR_rates[index_of_utils], "\nThis yields a total utility of:", optimal_solution_total_utility[index_of_utils])
+    print("\nExplanation of randomized decision rules: A threshold of (t1, t2) with randomization q means: Individuals with p<t1 or p>t2 are not selected (i.e., assigned decision D=0). Individuals with t1<p<t2 are selected with probability q.")

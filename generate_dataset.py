@@ -1,3 +1,5 @@
+import argparse
+
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -60,6 +62,7 @@ def create_synth(dim=15000, l_y=4, l_m_y=0, thr_supp=1, l_h_r=1.5,  l_h_q=1, l_m
 
     # Y var
     # y target, with measurement and historical bias
+    # TODO: add randomization to the way measurement bias on y is introduced?
     y = R - l_q*Q - l_y*A - l_m_y*A + Ny + l_y_b*R*A
     # y only historical, no measurement bias
     y_real = R - l_q*Q - l_y*A + Ny + l_y_b*R*A
@@ -116,3 +119,42 @@ def create_synth(dim=15000, l_y=4, l_m_y=0, thr_supp=1, l_h_r=1.5,  l_h_q=1, l_m
     y_test_real = y_real[y_test.index]
 
     return X_train, X_ind_train, X_supp_train, X_test, X_ind_test, X_supp_test, y_train, y_test, y_train_real, y_test_real
+
+
+def main():
+
+    # run: python generate_dataset.py -f my_biased_dataset
+    # get help with: python generate_dataset.py -h
+
+    parser = argparse.ArgumentParser(description='Generating a biased dataset.')
+    #parser.add_argument('-c', '--config_filename', type=str, required=True, help='config file name.')
+    #parser.add_argument('-e_id', '--experiment_id', type=int, required=False, help='Already existing exeriment id if an experiment is to be continued. If not provided, a new experiment with a new id will be generated.')
+    #parser.add_argument('-e_desc', '--experiment_desc', type=str, required=False, help='Description of the experiment. Only considered if experiment_id is not provided!')
+
+    parser.add_argument('-f', '--filename', type=str, required=True, help='')
+
+    # TODO: finish implementing main function for dataset generation
+    parser.add_argument('-dim', type=str, required=False, help='')
+    parser.add_argument('-l_y', type=str, required=False, help='')
+    parser.add_argument('-l_m_y', type=str, required=False, help='')
+    parser.add_argument('-thr_supp', type=str, required=False, help='')
+    parser.add_argument('-l_h_r', type=str, required=False, help='')
+    parser.add_argument('-l_h_q', type=str, required=False, help='')
+    parser.add_argument('-l_m', type=str, required=False, help='')
+    parser.add_argument('-p_u', type=str, required=False, help='')
+    parser.add_argument('-l_r', type=str, required=False, help='')
+    parser.add_argument('-l_o', type=str, required=False, help='')
+    parser.add_argument('-l_y_b', type=str, required=False, help='')
+    parser.add_argument('-l_q', type=str, required=False, help='')
+    parser.add_argument('-sy', type=str, required=False, help='')
+    parser.add_argument('-l_r_q', type=str, required=False, help='')
+
+    args = parser.parse_args()
+
+    create_synth(args.dim, args.l_y, args.l_m_y, args.thr_supp, args.l_h_r,  args.l_h_q, args.l_m, args.p_u, args.l_r, args.l_o, args.l_y_b, args.l_q, args.sy, args.l_r_q)
+
+    print(f'\nThe dataset has been generated and saved as {args.filename}.csv :)\n')
+
+
+if __name__ == "__main__":
+    main()
