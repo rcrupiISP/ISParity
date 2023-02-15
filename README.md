@@ -13,8 +13,6 @@ To know more about this research work, please refer to our papers:
 - Bias on Demand: A Modelling Framework That Generates Synthetic Data With Bias
 
 
-![image](https://user-images.githubusercontent.com/66357086/202754476-9b270563-00b1-4f08-8404-de9396d67e0b.png)
-
 ### Using the biased dataset generator
 Clone repo and install packages:
 ```
