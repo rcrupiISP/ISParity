@@ -8,6 +8,7 @@ Repository of experiments in fairness Machine Learning.
 
 To know more about this research work, please refer to our papers:
 
+- [BeFair: Addressing Fairness in the Banking Sector](https://ieeexplore.ieee.org/abstract/document/9377894)
 - [A clarification of the nuances in the fairness metrics landscape](https://www.nature.com/articles/s41598-022-07939-1)
   [ArXiv version](https://arxiv.org/pdf/2106.00467.pdf)
 - Investigating Bias with a Synthetic Data Generator: Empirical Evidence and Philosophical Interpretation [ArXiv version](https://arxiv.org/pdf/2209.05889.pdf)
