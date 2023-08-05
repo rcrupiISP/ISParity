@@ -6,13 +6,31 @@ Repository of experiments in fairness Machine Learning.
 > ### Authors & contributors:
 > Alessandro Castelnovo, Riccardo Crupi, Daniele Regoli
 
-To know more about this research work, please refer to our papers:
-
-- [BeFair: Addressing Fairness in the Banking Sector](https://ieeexplore.ieee.org/abstract/document/9377894)
-- [A clarification of the nuances in the fairness metrics landscape](https://www.nature.com/articles/s41598-022-07939-1)
-  [ArXiv version](https://arxiv.org/pdf/2106.00467.pdf)
-- Investigating Bias with a Synthetic Data Generator: Empirical Evidence and Philosophical Interpretation [ArXiv version](https://arxiv.org/pdf/2209.05889.pdf)
-  This project has been renamed and moved to https://github.com/rcrupiISP/BiasOnDemand
-
-
 ![image](https://user-images.githubusercontent.com/66357086/202754476-9b270563-00b1-4f08-8404-de9396d67e0b.png)
+
+---
+
+To know more about the research work of our team of Data Science & Artificial Intelligence in Intesa Sanpaolo, please refer to our
+## Publications
+
+### Fairness
+
+- Joachim Baumann, Alessandro Castelnovo, Riccardo Crupi, Nicole Inverardi, [Bias on Demand: A Modelling Framework That Generates Synthetic Data With Bias](https://doi.org/10.1145/3593013.3594058)   FAccT '23: Proceedings of the 2023 ACM Conference on Fairness, Accountability, and Transparency June 2023Pages 1002–1013
+	> Nowadays, Machine Learning (ML) systems are widely used in various businesses and are increasingly being adopted to make decisions that can significantly impact people’s lives. However, these decision-making systems rely on data-driven learning, which poses a risk of propagating the bias embedded in the data. Despite various attempts by the algorithmic fairness community to outline different types of bias in data and algorithms, there is still a limited understanding of how these biases relate to the fairness of ML-based decision-making systems. In addition, efforts to mitigate bias and unfairness are often agnostic to the specific type(s) of bias present in the data. This paper explores the nature of fundamental types of bias, discussing their relationship to moral and technical frameworks. To prevent harmful consequences, it is essential to comprehend how and where bias is introduced throughout the entire modelling pipeline and possibly how to mitigate it. Our primary contribution is a framework for generating synthetic datasets with different forms of biases. We use our proposed synthetic data generator to perform experiments on different scenarios to showcase the interconnection between biases and their effect on performance and fairness evaluations. Furthermore, we provide initial insights into mitigating specific types of bias through post-processing techniques. The implementation of the synthetic data generator and experiments can be found at https://github.com/rcrupiISP/BiasOnDemand.
+- Alessandro Castelnovo, Riccardo Crupi, Greta Greco, Daniele Regoli, Ilaria Penco, Andrea Cosentini [A clarification of the nuances in the fairness metrics landscape](https://doi.org/10.1038/s41598-022-07939-1) *Scientific Reports* **12**, 4209 (2022)
+	> In recent years, the problem of addressing fairness in machine learning (ML) and automatic decision making has attracted a lot of attention in the scientific communities dealing with artificial intelligence. A plethora of different definitions of fairness in ML have been proposed, that consider different notions of what is a “fair decision” in situations impacting individuals in the population. The precise differences, implications and “orthogonality” between these notions have not yet been fully analyzed in the literature. In this work, we try to make some order out of this zoo of definitions.  
+- Yuri Nakao, Lorenzo Strappelli, Simone Stumpf, Aisha Naseer, Daniele Regoli, Giulia Del Gamba, [Towards Responsible AI: A Design Space Exploration of Human-Centered Artificial Intelligence User Interfaces to Investigate Fairness](https://doi.org/10.1080/10447318.2022.2067936) *International Journal of Human–Computer Interaction* 2023
+	> With Artificial intelligence (AI) to aid or automate decision-making advancing rapidly, a particular concern is its fairness. In order to create reliable, safe and trustworthy systems through human-centred artificial intelligence (HCAI) design, recent efforts have produced user interfaces (UIs) for AI experts to investigate the fairness of AI models. In this work, we provide a design space exploration that supports not only data scientists but also domain experts to investigate AI fairness. Using loan applications as an example, we held a series of workshops with loan officers and data scientists to elicit their requirements. We instantiated these requirements into FairHIL, a UI to support human-in-the-loop fairness investigations, and describe how this UI could be generalized to other use cases. We evaluated FairHIL through a think-aloud user study. Our work contributes better designs to investigate an AI model’s fairness—and move closer towards responsible AI.
+- Alessandro Castelnovo, Riccardo Crupi, Giulia Del Gamba, Greta Greco, Aisha Naseer, Daniele Regoli, Beatriz San Miguel Gonzalez, [BeFair: Addressing Fairness in the Banking Sector](https://doi.org/10.1109/BigData50022.2020.9377894) [preprint version](https://arxiv.org/pdf/2102.02137) 2020 IEEE International Conference on Big Data (Big Data)
+	> Algorithmic bias mitigation has been one of the most difficult conundrums for the data science community and Machine Learning (ML) experts. Over several years, there have appeared enormous efforts in the field of fairness in ML. Despite the progress toward identifying biases and designing fair algorithms, translating them into the industry remains a major challenge. In this paper, we present the initial results of an industrial open innovation project in the banking sector: we propose a general roadmap for fairness in ML and the implementation of a toolkit called BeFair that helps to identify and mitigate bias. Results show that training a model without explicit constraints may lead to bias exacerbation in the predictions.
+  
+
+### eXplainable AI
+- Riccardo Crupi, Alessandro Castelnovo, Daniele Regoli, Beatriz San Miguel Gonzalez, [Counterfactual explanations as interventions in latent space](https://doi.org/10.1007/s10618-022-00889-2) *Data Mining and Knowledge Discovery* (2022)
+	> Explainable Artificial Intelligence (XAI) is a set of techniques that allows the understanding of both technical and non-technical aspects of Artificial Intelligence (AI) systems. XAI is crucial to help satisfying the increasingly important demand of _trustworthy_ Artificial Intelligence, characterized by fundamental aspects such as respect of human autonomy, prevention of harm, transparency, accountability, etc. Within XAI techniques, counterfactual explanations aim to provide to end users a set of features (and their corresponding values) that need to be changed in order to achieve a desired outcome. Current approaches rarely take into account the feasibility of actions needed to achieve the proposed explanations, and in particular, they fall short of considering the causal impact of such actions. In this paper, we present Counterfactual Explanations as Interventions in Latent Space (CEILS), a methodology to generate counterfactual explanations capturing by design the underlying causal relations from the data, and at the same time to provide feasible recommendations to reach the proposed profile. Moreover, our methodology has the advantage that it can be set on top of existing counterfactuals generator algorithms, thus minimising the complexity of imposing additional causal constrains. We demonstrate the effectiveness of our approach with a set of different experiments using synthetic and real datasets (including a proprietary dataset of the financial domain).
+
+## Conferences
+
+## Lectures & Tutorials
+
+
