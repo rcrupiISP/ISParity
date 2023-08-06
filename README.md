@@ -1,7 +1,10 @@
 ![20180720101646!Intesa_Sanpaolo_logo](https://user-images.githubusercontent.com/92302358/187639073-08130658-5c1a-4f93-be2b-be180a30f38b.svg)
 
 # ISParity
-Repository of experiments in fairness Machine Learning.
+Repository of experiments in fairness Machine Learning.  
+:star: **Data Science & Artificial Intelligence** :star: group @ Intesa Sanpaolo
+
+---
 
 > ### Authors & contributors:
 > Alessandro Castelnovo, Riccardo Crupi, Daniele Regoli
@@ -23,7 +26,7 @@ FAccT '23: Proceedings of the 2023 ACM Conference on Fairness, Accountability, a
 * [An Open-Source Toolkit to Generate Biased Datasets](https://ceur-ws.org/Vol-3442/paper-02.pdf)  
 Joachim Baumann, Alessandro Castelnovo, Riccardo Crupi, Nicole Inverardi, Daniele Regoli  
 EWAF’23: European Workshop on Algorithmic Fairness, June 07–09, 2023, Winterthur, Switzerland
-	> Many different types of bias are discussed in the algorithmic fairness community. A clear understanding of those biases and their relation to fairness metrics and mitigation techniques is still missing. We introduce Bias on Demand: a modelling framework to generate synthetic datasets that contain various types of bias. Furthermore, we clarify the effect of those biases on the accuracy and fairness of ML systems and provide insights into the trade-offs that emerge when trying to mitigate them. We believe that our open-source package will enable researchers and practitioners to better understand and mitigate different types of biases throughout the ML pipeline. The package can be installed via pip and the experiments are available at https://github. com/rcrupiISP/BiasOnDemand. We encourage readers to consult the full paper.
+	> Many different types of bias are discussed in the algorithmic fairness community. A clear understanding of those biases and their relation to fairness metrics and mitigation techniques is still missing. We introduce Bias on Demand: a modelling framework to generate synthetic datasets that contain various types of bias. Furthermore, we clarify the effect of those biases on the accuracy and fairness of ML systems and provide insights into the trade-offs that emerge when trying to mitigate them. We believe that our open-source package will enable researchers and practitioners to better understand and mitigate different types of biases throughout the ML pipeline. The package can be installed via pip and the experiments are available at https://github.com/rcrupiISP/BiasOnDemand. We encourage readers to consult the full paper.
 
 - [A clarification of the nuances in the fairness metrics landscape](https://doi.org/10.1038/s41598-022-07939-1)    
 Alessandro Castelnovo, Riccardo Crupi, Greta Greco, Daniele Regoli, Ilaria Penco, Andrea Cosentini  
