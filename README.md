@@ -10,7 +10,7 @@ Repository of experiments in fairness Machine Learning.
 
 ---
 
-To know more about the research work of our team of Data Science & Artificial Intelligence in Intesa Sanpaolo, please refer to our publications
+To know more about the research work of our team of :star: **Data Science & Artificial Intelligence** :star: in Intesa Sanpaolo, please refer to our publications
 ## Journal papers & Conference proceedings 
 
 ### Fairness
