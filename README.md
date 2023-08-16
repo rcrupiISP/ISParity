@@ -72,3 +72,7 @@ Proceedings of the 14th International Conference on Agents and Artificial Intell
 )
 
 [CEILS talk Causal UAI - Riccardo Crupi 2021](https://youtu.be/adTNX_Um47I)
+
+[Toward Fairness Through Time BIAS@ECMLPKDD - Alessandro Castelnovo 2022](https://youtu.be/hmCwg4lg8BY)
+
+
