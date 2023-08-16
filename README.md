@@ -75,4 +75,5 @@ Proceedings of the 14th International Conference on Agents and Artificial Intell
 
 [Toward Fairness Through Time BIAS@ECMLPKDD - Alessandro Castelnovo 2022](https://youtu.be/hmCwg4lg8BY)
 
+[Fairness in AI Deep Learning Italia - Daniele Regoli 2022](https://youtu.be/yOzJzBYab7I)
 
