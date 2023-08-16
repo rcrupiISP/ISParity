@@ -82,3 +82,6 @@ Proceedings of the 14th International Conference on Agents and Artificial Intell
 [Tutorial Fairness and Explainability Machine learning Milano - Alessandro Castelnovo 2020](https://youtu.be/1WLv09HE2j8)
 
 [Preserving fairness in ranking BIAS@ECIR2023 - Nicola Alimonda 2023](https://youtu.be/l9QsCyYZgg8)
+
+[Tutorial FFTree](https://sites.google.com/campus.unimib.it/fftree/home)
+
