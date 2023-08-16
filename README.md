@@ -79,3 +79,5 @@ Proceedings of the 14th International Conference on Agents and Artificial Intell
 
 [BiasOnDemand ACM FAccT - Daniele Regoli 2023](https://youtu.be/6pCN8cOHEBc)
 
+[Tutorial Fairness and Explainability Machine learning Milano - Alessandro Castelnovo 2020](https://youtu.be/1WLv09HE2j8)
+
