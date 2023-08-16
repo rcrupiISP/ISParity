@@ -77,3 +77,5 @@ Proceedings of the 14th International Conference on Agents and Artificial Intell
 
 [Fairness in AI Deep Learning Italia - Daniele Regoli 2022](https://youtu.be/yOzJzBYab7I)
 
+[BiasOnDemand ACM FAccT - Daniele Regoli 2023](https://youtu.be/6pCN8cOHEBc)
+
