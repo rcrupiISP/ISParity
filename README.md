@@ -68,7 +68,7 @@ Proceedings of the 14th International Conference on Agents and Artificial Intell
 
 ## Lectures, Tutorials, and others
 
-[Seminar BeFair - Riccardo Crupi 2021](https://uniudamce-my.sharepoint.com/personal/155794_spes_uniud_it/_layouts/15/stream.aspx?id=%2Fpersonal%2F155794%5Fspes%5Funiud%5Fit%2FDocuments%2FRegistrazioni%2FBeFair%5FUniud%2Emp4&ga=1
+[Seminar BeFair - Riccardo Crupi 2022](https://uniudamce-my.sharepoint.com/personal/155794_spes_uniud_it/_layouts/15/stream.aspx?id=%2Fpersonal%2F155794%5Fspes%5Funiud%5Fit%2FDocuments%2FRegistrazioni%2FBeFair%5FUniud%2Emp4&ga=1
 )
 
 [CEILS talk Causal UAI - Riccardo Crupi 2021](https://youtu.be/adTNX_Um47I)
