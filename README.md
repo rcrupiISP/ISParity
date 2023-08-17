@@ -80,6 +80,8 @@ Proceedings of the 14th International Conference on Agents and Artificial Intell
 
 [Toward Fairness Through Time BIAS@ECMLPKDD - Alessandro Castelnovo 2022](https://youtu.be/hmCwg4lg8BY)
 
+[Demo BeFair: Addressing Fairness in the Banking Sector - Greta Greco 2022](https://www.youtube.com/watch?v=nW6O444EbDQ)
+
 [Preserving fairness in ranking BIAS@ECIR2023 - Nicola Alimonda 2023](https://youtu.be/l9QsCyYZgg8)
 
 [BiasOnDemand ACM FAccT - Daniele Regoli 2023](https://youtu.be/6pCN8cOHEBc)
