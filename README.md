@@ -74,11 +74,11 @@ Proceedings of the 14th International Conference on Agents and Artificial Intell
 
 [Seminar BeFair - Riccardo Crupi 2022](https://uniudamce-my.sharepoint.com/:v:/g/personal/155794_spes_uniud_it/ESo3k-cagu9Pqfm8VVSgragBxQpxUnvDrrwtJ8_ZhgVAUg?e=SWlAR9)
 
-[Toward Fairness Through Time BIAS@ECMLPKDD - Alessandro Castelnovo 2022](https://youtu.be/hmCwg4lg8BY)
+[Fairness in AI Deep Learning Italia - Daniele Regoli 2022](https://youtu.be/yOzJzBYab7I)
 
 [Tutorial FFTree - 2022](https://sites.google.com/campus.unimib.it/fftree/home)
 
-[Fairness in AI Deep Learning Italia - Daniele Regoli 2022](https://youtu.be/yOzJzBYab7I)
+[Toward Fairness Through Time BIAS@ECMLPKDD - Alessandro Castelnovo 2022](https://youtu.be/hmCwg4lg8BY)
 
 [Preserving fairness in ranking BIAS@ECIR2023 - Nicola Alimonda 2023](https://youtu.be/l9QsCyYZgg8)
 
