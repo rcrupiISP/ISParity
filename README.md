@@ -68,19 +68,18 @@ Proceedings of the 14th International Conference on Agents and Artificial Intell
 
 ## Lectures, Tutorials, and others
 
-[Seminar BeFair - Riccardo Crupi 2022](https://uniudamce-my.sharepoint.com/:v:/g/personal/155794_spes_uniud_it/ESo3k-cagu9Pqfm8VVSgragBxQpxUnvDrrwtJ8_ZhgVAUg?e=SWlAR9)
+[Tutorial Fairness and Explainability Machine learning Milano - Alessandro Castelnovo 2020](https://youtu.be/1WLv09HE2j8)
 
 [CEILS talk Causal UAI - Riccardo Crupi 2021](https://youtu.be/adTNX_Um47I)
 
+[Seminar BeFair - Riccardo Crupi 2022](https://uniudamce-my.sharepoint.com/:v:/g/personal/155794_spes_uniud_it/ESo3k-cagu9Pqfm8VVSgragBxQpxUnvDrrwtJ8_ZhgVAUg?e=SWlAR9)
+
 [Toward Fairness Through Time BIAS@ECMLPKDD - Alessandro Castelnovo 2022](https://youtu.be/hmCwg4lg8BY)
+
+[Tutorial FFTree - 2022](https://sites.google.com/campus.unimib.it/fftree/home)
 
 [Fairness in AI Deep Learning Italia - Daniele Regoli 2022](https://youtu.be/yOzJzBYab7I)
 
-[BiasOnDemand ACM FAccT - Daniele Regoli 2023](https://youtu.be/6pCN8cOHEBc)
-
-[Tutorial Fairness and Explainability Machine learning Milano - Alessandro Castelnovo 2020](https://youtu.be/1WLv09HE2j8)
-
 [Preserving fairness in ranking BIAS@ECIR2023 - Nicola Alimonda 2023](https://youtu.be/l9QsCyYZgg8)
 
-[Tutorial FFTree](https://sites.google.com/campus.unimib.it/fftree/home)
-
+[BiasOnDemand ACM FAccT - Daniele Regoli 2023](https://youtu.be/6pCN8cOHEBc)
