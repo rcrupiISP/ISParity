@@ -92,7 +92,7 @@ Journal of Risk Model Validation - ISSN: 1753-9579 (print) 1753-9587 (online)
 
 ### Other topics
 
-[Disambiguation of company names via deep recurrent networks](https://www.sciencedirect.com/science/article/abs/pii/S095741742302537X)
+- [Disambiguation of company names via deep recurrent networks](https://www.sciencedirect.com/science/article/abs/pii/S095741742302537X)
 Alessandro Basile, Riccardo Crupi, Michele Grasso, Alessandro Mercanti, Daniele Regoli, Simone Scarsi, Shuyi Yang, Andrea Claudio Cosentini.	
 Expert Systems with Applications 238, 122035.
 [GitHub](https://github.com/rcrupiISP/SiameseDisambiguation)
