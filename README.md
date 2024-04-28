@@ -133,4 +133,5 @@ The contributions of this work are: with empirical investigations on real-world 
 
 [BiasOnDemand ACM FAccT - Daniele Regoli 2023](https://youtu.be/6pCN8cOHEBc)
 
+[Nexa lunch seminar - Towards responsible AI in banking](https://youtu.be/bTJxGe2_ZmM?si=1rUDO0Pk3XwVbuIF)
 
