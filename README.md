@@ -89,13 +89,16 @@ Proceedings of the 14th International Conference on Agents and Artificial Intell
 Journal of Risk Model Validation - ISSN: 1753-9579 (print) 1753-9587 (online)
 [GitHub](https://github.com/rcrupiISP/SyntheticCorrelationVAE)
 	> We propose a novel approach for quantifying the sensitivity of credit portfolio value-at-risk to asset correlations with the use of synthetic financial correlation matrixes generated with deep learning models. In previous work, generative adversarial networks (GANs) were employed to demonstrate the generation of plausible correlation matrixes that capture the essential characteristics observed in empirical correlation matrixes estimated on asset returns. Instead of GANs, we employ variational autoencoders (VAEs) to achieve a more interpretable latent space representation and to obtain a generator of plausible correlation matrixes by sampling the VAE’s latent space. Through our analysis, we reveal that the VAE’s latent space can be a useful tool to capture the crucial factors impacting portfolio diversification, particularly in relation to the sensitivity of credit portfolios to changes in asset correlations. A VAE trained on the historical time series of correlation matrixes is used to generate synthetic correlation matrixes that satisfy a set of expected financial properties. Our analysis provides clear indications that the capacity for realistic data augmentation provided by VAEs, combined with the ability to obtain model interpretability, can prove useful for risk management, enhancing the resilience and accuracy of models when backtesting, as past data may exhibit biases and might not contain the essential high-stress events required for evaluating diverse risk scenarios.
-Copyright Infopro Digital Limited. All rights reserved.
-
-You may share this content using our article tools. Copying this content is for the sole use of the Authorised User (named subscriber), as outlined in our terms and conditions - https://www.infopro-insight.com/terms-conditions/insight-subscriptions/
-
-If you would like to purchase additional rights please email info@risk.net
 
 ### Other topics
+
+[Disambiguation of company names via deep recurrent networks](https://www.sciencedirect.com/science/article/abs/pii/S095741742302537X)
+Alessandro Basile, Riccardo Crupi, Michele Grasso, Alessandro Mercanti, Daniele Regoli, Simone Scarsi, Shuyi Yang, Andrea Claudio Cosentini.	
+Expert Systems with Applications 238, 122035.
+[GitHub](https://github.com/rcrupiISP/SiameseDisambiguation)
+	> Name Entity Disambiguation is the Natural Language Processing task of identifying textual records corresponding to the same Named Entity, i.e., real-world entities represented as a list of attributes (names, places, organisations, etc.). In this work, we face the task of disambiguating companies on the basis of their written names. We propose a Siamese LSTM Network approach to extract – via supervised learning – an embedding of company name strings in a (relatively) low dimensional vector space and use this representation to identify pairs of company names that actually represent the same company (i.e., the same Entity).
+Given that the manual labelling of string pairs is a rather onerous task, we analyse how an Active Learning approach to prioritise the samples to be labelled leads to a more efficient overall learning pipeline.
+The contributions of this work are: with empirical investigations on real-world industrial data, we show that our proposed Siamese Network outperforms several benchmark approaches based on standard string matching algorithms when enough labelled data are available; moreover, we show that Active Learning prioritisation is indeed helpful when labelling resources are limited, and let the learning models reach the out-of-sample performance saturation with less labelled data with respect to standard (random) data labelling approaches.
 
 
 ## Lectures, Tutorials, and others
