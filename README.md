@@ -129,3 +129,5 @@ The contributions of this work are: with empirical investigations on real-world 
 [Preserving fairness in ranking BIAS@ECIR2023 - Nicola Alimonda 2023](https://youtu.be/l9QsCyYZgg8)
 
 [BiasOnDemand ACM FAccT - Daniele Regoli 2023](https://youtu.be/6pCN8cOHEBc)
+
+
