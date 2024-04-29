@@ -1,8 +1,10 @@
-![20180720101646!Intesa_Sanpaolo_logo](https://user-images.githubusercontent.com/92302358/187639073-08130658-5c1a-4f93-be2b-be180a30f38b.svg)
+<!---
+![20180720101646!Intesa_Sanpaolo_logo](https://user-images.githubusercontent.com/92302358/187639073-08130658-5c1a-4f93-be2b-be180a30f38b.svg))
+-->
 
 # ISParity
-Repository of experiments in fairness Machine Learning.  
-:star: **Data Science & Artificial Intelligence** :star: group @ Intesa Sanpaolo
+Repository of work and experiments in XAI and fairness Machine Learning.  
+:star: **Data Science & Artificial Intelligence** :star: <!--- group @ Intesa Sanpaolo -->
 
 ---
 
