@@ -115,8 +115,7 @@ Given that the manual labelling of string pairs is a rather onerous task, we ana
 The contributions of this work are: with empirical investigations on real-world industrial data, we show that our proposed Siamese Network outperforms several benchmark approaches based on standard string matching algorithms when enough labelled data are available; moreover, we show that Active Learning prioritisation is indeed helpful when labelling resources are limited, and let the learning models reach the out-of-sample performance saturation with less labelled data with respect to standard (random) data labelling approaches.
  
  - [Declarative Encoding of Fairness in Logic Tensor Networks](https://boa.unimib.it/handle/10281/462523)
-  
-Greta Greco, Federico Alberici, Matteo Palmonari, Andrea Cosentini.	
+ Greta Greco, Federico Alberici, Matteo Palmonari, Andrea Cosentini.	
 	> Algorithms are vulnerable to biases that might render their decisions unfair toward particular groups of individuals. Fairness comes with a range of facets that strongly depend on the application domain and that need to be enforced accordingly. However, most mitigation models embed fairness constraints as fundamental component of the loss function thus requiring code-level adjustments to adapt to specific contexts and domains. Rather than relying on a procedural approach, our model leverages declarative structured knowledge to encode fairness requirements in the form of logic rules capturing unambiguous and precise natural language statements. We propose a neuro-symbolic integration approach based on Logic Tensor Networks that combines data-driven network-based learning with high-level logical knowledge, allowing to perform classification tasks while reducing discrimination. Experimental evidence shows that performance is as good as state-of-the-art (SOTA) thus providing a flexible framework to account for non-discrimination often at a modest cost in terms of accuracy.
 
 
